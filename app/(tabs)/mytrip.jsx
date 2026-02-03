@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import StartNewTripCard from '../../components/MyTrips/StartNewTripCard';
 import { auth, db } from './../../configs/firebaseConfig';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, deleteDoc } from 'firebase/firestore';
 import UserTripList from './../../components/MyTrips/UserTripList';
 import { useRouter } from 'expo-router';
 
@@ -25,13 +25,28 @@ export default function MyTrip() {
 
     const trips = [];
     querySnapshot.forEach((doc) => {
-      console.log(doc.id, "=>", doc.data());
-      trips.push(doc.data());
+      trips.push({
+        ...doc.data(),
+        id: doc.id // Store the document ID
+      });
     });
 
     setUserTrips(trips);
-    console.log('Updated userTrips:', trips);
     setLoading(false);
+  };
+
+  const handleDeleteTrip = async (tripToDelete) => {
+    try {
+      setLoading(true);
+      // Delete the trip document from Firestore
+      await deleteDoc(doc(db, 'UserTrips', tripToDelete.id));
+      // Refresh the trips list
+      await GetMyTrips();
+    } catch (error) {
+      console.error('Error deleting trip:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddNewTrip = () => {
@@ -62,7 +77,7 @@ export default function MyTrip() {
       {loading && <ActivityIndicator size={'large'} color={'#000'} />}
       {userTrips?.length === 0 ?
         <StartNewTripCard />
-        : <UserTripList userTrips={userTrips} />
+        : <UserTripList userTrips={userTrips} onDeleteTrip={handleDeleteTrip} />
       }
     </View>
   );

@@ -103,7 +103,7 @@ const Profile = () => {
         </Text>
       </TouchableOpacity>
       <Text style={styles.footer}>
-        Crafted with passion by Kripa Sindhu. ✨ Bringing ideas to life, one
+        Crafted with passion by Asmita Patil. ✨ Bringing ideas to life, one
         line of code at a time.
       </Text>
     </View>

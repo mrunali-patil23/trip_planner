@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, Modal, Alert } from 'react-native';
+import PaymentPage from './PaymentPage';
 
 const windowWidth = Dimensions.get('window').width;
 
 const HotelList = ({ hotelList }) => {
   const [hotelImages, setHotelImages] = useState({});
+  const [showPayment, setShowPayment] = useState(false);
+  const [selectedHotel, setSelectedHotel] = useState(null);
+  const [bookedHotels, setBookedHotels] = useState({}); // Track booked hotels
 
   useEffect(() => {
     // Fetch images for each hotel in hotelList
@@ -47,57 +51,115 @@ const HotelList = ({ hotelList }) => {
     );
   }
 
+  const handlePressHotel = (hotel) => {
+    // Handle press action for hotel card, e.g., navigate to hotel details screen
+    console.log('Pressed hotel:', hotel);
+  };
+
+  const handleBookHotel = (hotel) => {
+    setSelectedHotel(hotel);
+    setShowPayment(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    if (selectedHotel) {
+      setBookedHotels(prev => ({
+        ...prev,
+        [selectedHotel.hotel_name]: true
+      }));
+      Alert.alert('Success', 'Hotel booked successfully!');
+    }
+  };
+
+  const handleCancelBooking = (hotel) => {
+    Alert.alert(
+      'Cancel Booking',
+      'Are you sure you want to cancel your booking?',
+      [
+        {
+          text: 'No',
+          style: 'cancel',
+        },
+        {
+          text: 'Yes',
+          onPress: () => {
+            setBookedHotels(prev => ({
+              ...prev,
+              [hotel.hotel_name]: false
+            }));
+            Alert.alert('Success', 'Booking cancelled successfully!');
+          },
+        },
+      ]
+    );
+  };
+
   return (
-    <ScrollView
-      horizontal
-      style={styles.container}
-      showsHorizontalScrollIndicator={false}
-    >
-      {hotelList.map((hotel, index) => (
-        <TouchableOpacity
-          key={index}
-          style={styles.hotelCard}
-          onPress={() => handlePressHotel(hotel)}
-        >
-          <Image
-            source={{
-              uri:
-                hotelImages[hotel.hotel_name] ||
-                'https://via.placeholder.com/400x300.png?text=Image+Not+Found',
-            }}
-            style={styles.hotelImage}
+    <>
+      <ScrollView
+        horizontal
+        style={styles.container}
+        showsHorizontalScrollIndicator={false}
+      >
+        {hotelList.map((hotel, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.hotelCard}
+            onPress={() => handlePressHotel(hotel)}
+          >
+            <Image
+              source={{
+                uri:
+                  hotelImages[hotel.hotel_name] ||
+                  'https://via.placeholder.com/400x300.png?text=Image+Not+Found',
+              }}
+              style={styles.hotelImage}
+            />
+            <View style={styles.hotelDetails}>
+              <Text style={styles.hotelName} numberOfLines={3}>
+                {hotel.hotel_name}
+              </Text>
+              <Text style={styles.hotelAddress} numberOfLines={2}>
+                {hotel.hotel_address}
+              </Text>
+              <Text style={styles.hotelPrice}>💰 {hotel.price}</Text>
+              <Text style={styles.hotelRating}>{hotel.rating} ⭐ </Text>
+              <TouchableOpacity
+                style={[
+                  styles.bookButton,
+                  bookedHotels[hotel.hotel_name] && styles.cancelButton
+                ]}
+                onPress={() => 
+                  bookedHotels[hotel.hotel_name] 
+                    ? handleCancelBooking(hotel)
+                    : handleBookHotel(hotel)
+                }
+              >
+                <Text style={styles.bookButtonText}>
+                  {bookedHotels[hotel.hotel_name] ? 'Cancel Booking' : 'Book Now'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      <Modal
+        visible={showPayment}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowPayment(false)}
+      >
+        <View style={styles.modalContainer}>
+          <PaymentPage
+            hotelDetails={selectedHotel}
+            onPaymentSuccess={handlePaymentSuccess}
+            onClose={() => setShowPayment(false)}
           />
-          <View style={styles.hotelDetails}>
-            <Text style={styles.hotelName} numberOfLines={3}>
-              {hotel.hotel_name}
-            </Text>
-            <Text style={styles.hotelAddress} numberOfLines={2}>
-              {hotel.hotel_address}
-            </Text>
-            <Text style={styles.hotelPrice}>💰 {hotel.price}</Text>
-            <Text style={styles.hotelRating}>{hotel.rating} ⭐ </Text>
-            <TouchableOpacity
-              style={styles.bookButton}
-              onPress={() => handleBookHotel(hotel.booking_url)}
-            >
-              <Text style={styles.bookButtonText}>Book Now</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+        </View>
+      </Modal>
+    </>
   );
-};
-
-const handlePressHotel = (hotel) => {
-  // Handle press action for hotel card, e.g., navigate to hotel details screen
-  console.log('Pressed hotel:', hotel);
-};
-
-const handleBookHotel = (bookingUrl) => {
-  // Handle booking logic, e.g., open a web browser or navigate to the booking URL
-  console.log('Booking hotel:', bookingUrl);
-  // Example: window.open(bookingUrl, '_blank'); // For web-based applications
 };
 
 const styles = StyleSheet.create({
@@ -157,7 +219,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#007AFF',
     padding: 10,
     borderRadius: 8,
+    marginTop: 10,
     alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#FF3B30',
   },
   bookButtonText: {
     fontSize: 14,
@@ -172,6 +238,13 @@ const styles = StyleSheet.create({
   noHotelsText: {
     fontSize: 16,
     color: '#555',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 20,
   },
 });
 

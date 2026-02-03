@@ -54,6 +54,22 @@ export default function Login() {
             Get Started
           </Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: Colors.WHITE, borderWidth: 1, marginTop: 10 }]}
+          onPress={() => router.push("auth/admin-login")}
+        >
+          <Text
+            style={{
+              fontFamily: "roboto",
+              fontSize: 20,
+              textAlign: "center",
+              color: Colors.PRIMARY,
+            }}
+          >
+            Admin Login
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

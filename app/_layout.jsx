@@ -1,4 +1,3 @@
-
 import { useFonts } from 'expo-font';
 import { Stack, Redirect } from 'expo-router';
 import {CreateTripContext} from '../context/CreateTripContext'
@@ -15,6 +14,7 @@ const [tripData,setTripData] = useState([])
     <CreateTripContext.Provider value={{tripData,setTripData}}>
     <Stack screenOptions={{ headerShown: false }}>
     <Stack.Screen name="(tabs)"/>
+    <Stack.Screen name="admin" options={{ headerShown: false }} />
     </Stack>
     </CreateTripContext.Provider>
   );

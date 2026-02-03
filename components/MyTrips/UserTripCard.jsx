@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import moment from 'moment';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
-
 
 // Function to fetch image URL from Pixabay
 const fetchImageUrl = async (query) => {
@@ -23,7 +22,7 @@ const fetchImageUrl = async (query) => {
   }
 };
 
-const UserTripCard = ({ trip }) => {
+const UserTripCard = ({ trip, onDelete }) => {
   const [photoUrl, setPhotoUrl] = useState(null);
   const router = useRouter();
 
@@ -59,7 +58,25 @@ const UserTripCard = ({ trip }) => {
       params: { trip: JSON.stringify(trip) }
     });
   };
-  
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Delete Trip',
+      'Are you sure you want to delete this trip? This action cannot be undone.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress: () => onDelete(trip),
+          style: 'destructive',
+        },
+      ]
+    );
+  };
+
   if (!tripData || !tripData.locationInfo) {
     return null;
   }
@@ -80,9 +97,14 @@ const UserTripCard = ({ trip }) => {
         <Text style={styles.cardBudget}>
           💸 Budget: {tripData.budget}
         </Text>
-        <TouchableOpacity style={styles.button} onPress={handlePress}>
-          <Text style={styles.buttonText}>See Your Plans</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={handlePress}>
+            <Text style={styles.buttonText}>See Your Plans</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+            <Text style={styles.deleteButtonText}>Delete Trip</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -117,18 +139,36 @@ const styles = StyleSheet.create({
     color: '#555',
     marginTop: 4,
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
   button: {
-    backgroundColor: "#007AFF",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-    alignSelf: "flex-start",
-    marginTop: 8,
+    backgroundColor: '#007AFF',
+    padding: 10,
+    borderRadius: 8,
+    flex: 1,
+    marginRight: 8,
+  },
+  deleteButton: {
+    backgroundColor: '#FF3B30',
+    padding: 10,
+    borderRadius: 8,
+    flex: 1,
+    marginLeft: 8,
   },
   buttonText: {
-    color: "white",
+    color: '#fff',
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 
