@@ -18,3 +18,16 @@ web-build/
 
 expo-env.d.ts
 # @end expo-cli
+
+# Android / Expo build outputs
+travel_planner_output_file/
+*.apk
+*.apks
+*.aab
+*.jar
+
+# build folders
+android/
+ios/
+build/
+dist/
