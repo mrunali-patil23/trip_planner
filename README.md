@@ -1,3 +1,4 @@
+
 # AI Travel Planner App
 
 The **AI Travel Planner App** is an Android-based application designed to make trip planning seamless and efficient. Powered by cutting-edge AI technologies, the app provides personalized travel plans based on user inputs, helping users plan their trips with ease.
@@ -51,3 +52,6 @@ The **AI Travel Planner App** is an Android-based application designed to make t
 1. Clone the repository:
    ```bash
    git clone https://github.com/kripa-sindhu-007/travel_app.git
+=======
+# trip_planner
+
